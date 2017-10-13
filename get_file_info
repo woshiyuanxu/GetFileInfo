@@ -1,0 +1,72 @@
+# -*- coding: utf-8
+#读文件
+import os
+
+#处理文件数量
+count=0
+
+def readFile(filepath):
+    f1 = open(filepath, "r")
+    nowDir = os.path.split(filepath)[0]             #获取路径中的父文件夹路径
+    fileName = os.path.split(filepath)[1]           #获取路径中文件名
+    WorldDataDir = os.path.join(nowDir, "WorldData_" + fileName)        #对新生成的文件进行命名的过程
+    ImageDataDir = os.path.join(nowDir, "ImageData_" + fileName)
+
+    f_world = open(WorldDataDir, "w")
+    f_image = open(ImageDataDir, "w")
+    lines = f1.readlines()
+    lines_count = len(lines)
+    for n in range(0, lines_count-1):
+        line = lines[n]
+        line_object = line.split('\t')
+
+        i = 5
+
+        worldposition = ""
+        imageposition = ""
+        while i <= 223:
+            id = line_object[i - 2]
+            world_x = line_object[i]
+            world_y = line_object[i + 1]
+            world_z = line_object[i + 2]
+            worldposition = id + " " + world_x + world_y + world_z
+            # print worldposition
+            f_world.write(worldposition)
+
+            image_x = line_object[i + 3]
+            image_y = line_object[i + 4]
+            imageposition = id + " " + image_x + image_y
+            f_image.write(imageposition)
+
+            i += 7
+        i -= 1
+        headposition = line_object[i - 1] + line_object[i] + line_object[i + 1]
+        headrotate = line_object[i + 2] + line_object[i + 3] + line_object[i + 4]
+        head = headposition + headrotate + "\n"
+
+        print head
+        f_world.write(head)
+        f_image.write(head)
+    f_world.write("world")
+    f_image.write("image")
+    f1.close()
+    f_image.close()
+    f_world.close()
+
+    global count
+    count+=1
+
+def eachFile(filepath):
+    pathDir = os.listdir(filepath)      #获取当前路径下的文件名，返回List
+    for s in pathDir:
+        newDir=os.path.join(filepath,s)     #将文件命加入到当前文件路径后面
+        if os.path.isfile(newDir) :         #如果是文件
+            if os.path.splitext(newDir)[1]==".txt":  #判断是否是txt
+                readFile(newDir)                     #读文件
+                pass
+        else:
+            eachFile(newDir)                #如果不是文件，递归这个文件夹的路径
+
+
+eachFile("D:\Python\SVM_Data")
+print "共处理"+bytes(count)+"个txt"
